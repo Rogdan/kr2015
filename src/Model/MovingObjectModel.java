@@ -6,121 +6,146 @@ import java.util.*;
  * Created by Rogdan on 20.12.2015.
  */
 public class MovingObjectModel {
-    private int speed;
-    private volatile int health, state;
-    private Point maximalCoordinate, startCoordinate;
+    private int screenUpdateBetweenSteps, currentUpdateCount, currentDeadIterations;
+    private volatile int health, damageTaken;
+    private volatile State state;
+    private Point maximalCoordinate, currentCoordinate;
+    private Queue <Point> trajectory;
+    private Random random = new Random();
+    private boolean isComeBack;
 
-    private ArrayList <Point> trajectory;
-
-    private Observable myObservable = new Observable(){
-        public void notifyObservers(Object arg) {
-            setChanged();
-            super.notifyObservers(arg);
-        }
-    };
-
-    public void addObserver(Observer observer){
-        myObservable.addObserver(observer);
-    }
-
-    public MovingObjectModel(int speed, int health, Point maximalCoordinate){
-        this.speed = speed;
+    public MovingObjectModel(int screenUpdateBetweenSteps, int health, int damageTaken, Point maximalCoordinate, boolean isComeBack){
+        state = State.WAIT_MOVE;
+        this.screenUpdateBetweenSteps = screenUpdateBetweenSteps;
         this.health = health;
+        this.damageTaken = damageTaken;
         this.maximalCoordinate = maximalCoordinate;
+        this.isComeBack = isComeBack;
 
-        Random random = new Random();
-        state = random.nextInt(4) + 1;
+        setStartState();
+        initMovingObjectOnBoard();
+        initTrajectory();
     }
 
-    public void init(){
-        initMovingObjectOnBoard();
-        flee();
+    private void setStartState(){
+        int startState = random.nextInt(4) + 1;
+        switch (startState) {
+            case 1:
+                state = State.MOVE_RIGHT;
+                break;
+            case 2:
+                state = State.MOVE_LEFT;
+                break;
+            case 3:
+                state = State.MOVE_UP;
+                break;
+            case 4:
+                state = State.MOVE_DOWN;
+                break;
+        }
     }
 
     private void initMovingObjectOnBoard(){
-        Random random = new Random();
-
         int x = 0, y = 0;
-
         switch (state){
-            case MOVING_RIGHT:
+            case MOVE_RIGHT:
                 y = random.nextInt(maximalCoordinate.getY());
                 break;
 
-            case MOVING_LEFT:
+            case MOVE_LEFT:
                 x = maximalCoordinate.getX();
                 y = random.nextInt(maximalCoordinate.getY());
                 break;
 
-            case MOVING_UP:
+            case MOVE_UP:
                 x = random.nextInt(maximalCoordinate.getX());
                 y = maximalCoordinate.getY();
                 break;
 
-            case MOVING_DOWN:
+            case MOVE_DOWN:
                 x = random.nextInt(maximalCoordinate.getX());
                 break;
         }
 
-        startCoordinate = new Point(x, y);
-        myObservable.notifyObservers(startCoordinate);
+        currentCoordinate = new Point(x, y);
     }
 
-    public void bump(int damage){
-        health -= damage;
-
-        if (isDead(health))
-            myObservable.notifyObservers("dead");
+    public void bump(){
+        health -= damageTaken;
     }
 
-    private boolean isDead(int health){
+    private boolean isDead(){
         return health <= 0;
     }
 
-    private void flee(){
-        initTrajectory();
+    public void makeStep(){
+        currentUpdateCount++;
+        currentUpdateCount %= screenUpdateBetweenSteps;
 
-        for (Point point : trajectory) {
-            myObservable.notifyObservers(point);
-            waitNextStep();
+        if (isDead()) {
+            state = State.DEAD;
         }
 
-        myObservable.notifyObservers("out of range");
+        if (state == State.DEAD){
+            currentDeadIterations++;
+
+            if (currentDeadIterations == DEAD_ITERATIONS) {
+                state = State.TRASH;
+            }
+        }
+        else
+        if (currentUpdateCount == 0) {
+            if (trajectory.size() > 0) {
+                currentCoordinate = trajectory.poll();
+                state = currentCoordinate.getRelativeToThePreviousPoint();
+            }
+            else {
+                if (isComeBack)
+                    goBack();
+                else
+                    state = State.OUT_OF_RANGE;
+            }
+        }
+        else
+            state = State.WAIT_MOVE;
     }
 
-    private void waitNextStep(){
-        try {
-            Thread.sleep(speed);
-        } catch (InterruptedException ignored) {
-        }
+    private void goBack(){
+        setStartState();
+        initMovingObjectOnBoard();
+        initTrajectory();
     }
 
     private void initTrajectory(){
-        trajectory = new ArrayList<>();
+        trajectory = new ArrayDeque<>();
 
         switch (state) {
-            case 1:
-                trajectory = TrajectoryMeter.runThrowX(startCoordinate, maximalCoordinate, true);
+            case MOVE_RIGHT:
+                trajectory = TrajectoryMeter.runThrowX(currentCoordinate, maximalCoordinate, true);
                 break;
-            case 2:
-                trajectory = TrajectoryMeter.runThrowX(startCoordinate, maximalCoordinate, false);
+            case MOVE_LEFT:
+                trajectory = TrajectoryMeter.runThrowX(currentCoordinate, maximalCoordinate, false);
                 break;
-
-            case 3:
-                trajectory = TrajectoryMeter.runThrowY(startCoordinate, maximalCoordinate, true);
+            case MOVE_DOWN:
+                trajectory = TrajectoryMeter.runThrowY(currentCoordinate, maximalCoordinate, true);
                 break;
-            case 4:
-                trajectory = TrajectoryMeter.runThrowY(startCoordinate, maximalCoordinate, false);
+            case MOVE_UP:
+                trajectory = TrajectoryMeter.runThrowY(currentCoordinate, maximalCoordinate, false);
                 break;
         }
     }
 
-    public int getState(){
+    public State getState(){
         return state;
     }
 
-    public final static int MOVING_RIGHT = 1;
-    public final static int MOVING_LEFT = 2;
-    public final static int MOVING_DOWN = 3;
-    public final static int MOVING_UP = 4;
+    public Point getCurrentCoordinate(){
+        return currentCoordinate;
+    }
+
+    public enum State{
+        DEAD, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, WAIT_MOVE, OUT_OF_RANGE, TRASH
+    }
+
+    private static final int DEAD_ITERATIONS = 200;
 }

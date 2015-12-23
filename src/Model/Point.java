@@ -5,6 +5,10 @@ package Model;
  */
 public class Point {
     private int x, y;
+    private MovingObjectModel.State relativeToThePreviousPoint;
+
+    public Point(){
+    }
 
     public Point (int x, int y){
         this.x = x;
@@ -17,6 +21,14 @@ public class Point {
 
     public void setY(int y){
         this.y = y;
+    }
+
+    public void setRelativeToThePreviousPoint(MovingObjectModel.State relative){
+        relativeToThePreviousPoint = relative;
+    }
+
+    public MovingObjectModel.State getRelativeToThePreviousPoint(){
+        return relativeToThePreviousPoint;
     }
 
     public int getX(){

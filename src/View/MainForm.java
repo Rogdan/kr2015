@@ -1,25 +1,17 @@
 package View;
 
-import Model.*;
-import Model.Point;
-
 import javax.swing.*;
 import java.awt.*;
-import java.util.Observable;
-import java.util.Observer;
 
-/**
- * Created by Rogdan on 20.12.2015.
- */
-public class MainForm implements Observer{
+public class MainForm extends JFrame{
     private FonPanel fon;
-    private JFrame mainFrame;
-    private Dimension screenSize;
+    private Menu menu;
+    private Dimension programDimension, screenDimension;
+    private boolean isGameRun, isMenuCockroachesRun;
 
     public static void main(String[] args) {
         MainForm mainForm = new MainForm();
-        mainForm.setVisibleTrue();
-        mainForm.startGame();
+        mainForm.setVisible(true);
     }
 
     public MainForm(){
@@ -28,76 +20,81 @@ public class MainForm implements Observer{
 
     private void initAll(){
         initMainFrame();
-        initFon();
+        initMenuAndRunMenuTarakans();
     }
 
     private void initMainFrame(){
-        mainFrame = new JFrame("Smash the cockroach");
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Image img = kit.getImage(iconPath);
-        screenSize = kit.getScreenSize();
-        screenSize = new Dimension(1000, 600);
+        setTitle("Smash the cockroach");
+        setIcon();
+        initFon();
 
-        mainFrame.setIconImage(img);
-        mainFrame.setSize(screenSize);
-        mainFrame.setResizable(false);
-
-        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     private void initFon(){
-        fon = new FonPanel("res\\Table1.jpg");
-        mainFrame.setContentPane(fon);
-        mainFrame.setSize(fon.getDimension());
+        fon = new FonPanel();
+        checkFonDimension();
+
+        setContentPane(fon);
+        setSize(programDimension);
     }
 
-    private void setVisibleTrue(){
-        mainFrame.setVisible(true);
+    private void checkFonDimension(){
+        programDimension = fon.getDimension();
+
+        screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
+        screenDimension.setSize(screenDimension.getWidth(), screenDimension.getHeight() - 10);
+
+        if (screenDimension.getHeight() < programDimension.getHeight())
+            programDimension.setSize(programDimension.getWidth(), screenDimension.getHeight());
+
+        if (screenDimension.getWidth() < programDimension.getWidth())
+            programDimension.setSize(screenDimension.getWidth(), programDimension.getHeight());
     }
 
-    private void startGame(){
-        int x = (int) screenSize.getWidth();
-        int y = (int) screenSize.getHeight();
-        Point maxCoordinate = new Point(x, y);
+    private void setIcon(){
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Image icon = kit.getImage(iconPath);
+        setIconImage(icon);
+    }
 
-        for (int i = 1; i < 5; i++) {
-            MoveObject moveObject = new MoveObject(new MovingObjectModel(10 - i % 10 + 5, 2, maxCoordinate), 1);
-            mainFrame.add(moveObject);
-            moveObject.addObserver(this);
+    private void initMenuAndRunMenuTarakans(){
+        menu = new Menu(programDimension, this);
+        add(menu);
+        menu.initMenuCockroaches();
+        setMenuCockroachesRun(true);
+    }
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    moveObject.flee();
-                }
-            }).start();
+    private void setFon(String path){
+        fon.setFon(path);
+        checkFonDimension();
+        fon.repaint();
+
+        programDimension = fon.getDimension();
+        setSize(programDimension);
+    }
+
+    public void setGameRun(boolean isGameRun){
+        this.isGameRun = isGameRun;
+    }
+
+    public void setMenuCockroachesRun(boolean isMenuCockroachesRun){
+
+        this.isMenuCockroachesRun = isMenuCockroachesRun;
+    }
+
+    public void paint(Graphics g){
+        fon.repaint();
+        menu.repaint();
+
+        if (isMenuCockroachesRun) {
+            menu.updateMenuCockroaches();
         }
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-
-        MoveObject obj = (MoveObject) arg;
-
-        JLabel smashLabel = new JLabel();
-        smashLabel.setOpaque(false);
-        smashLabel.setIcon(new ImageIcon("res\\smashed.png"));
-        smashLabel.setBounds(obj.getLastPoint().getX(), obj.getLastPoint().getY(), 90, 90);
-        mainFrame.remove(obj);
-        mainFrame.add(smashLabel);
-        mainFrame.repaint();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-                    mainFrame.remove(smashLabel);
-                    mainFrame.repaint();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        else
+        if (isGameRun){
+            //todo
+        }
     }
 
     private static final String iconPath = "res\\icon.png";
