@@ -1,0 +1,6 @@
+little_cockroaches 10
+health 1
+base_score_for_one 3
+boss 1
+health 20
+base_score_for_one 7

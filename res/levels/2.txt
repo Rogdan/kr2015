@@ -1,0 +1,3 @@
+boss 10
+health 3
+base_score_for_one 12
