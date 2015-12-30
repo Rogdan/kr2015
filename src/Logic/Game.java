@@ -17,22 +17,20 @@ public class Game implements Observer{
     private ArrayDeque <MoveObject> queueOfMoveObjects = new ArrayDeque<>(100);
     private Scanner in;
     private GameThread gameThread;
-    private MainFrame mainFrame;
     private int currentLevel;
     private int deadCount;
 
-    public Game (GameBoard gameBoard, MainFrame mainFrame){
+    public Game (GameBoard gameBoard){
         this.gameBoard = gameBoard;
-        this.mainFrame = mainFrame;
     }
 
-    public void newGame() {
+    private void newGame() {
         currentLevel = 1;
         loadLevel(currentLevel);
         startGame();
     }
 
-    public void loadLevel(int level){
+    private void loadLevel(int level){
         deadCount = 0;
         MainFrame.notificationPanel.notificationAboutLevelStart(level);
         try {
@@ -45,7 +43,7 @@ public class Game implements Observer{
         in.close();
     }
 
-    public void startGame(){
+    private void startGame(){
         gameBoard.newGame();
         gameThread = new GameThread(this);
         gameThread.start();
@@ -66,11 +64,7 @@ public class Game implements Observer{
             moveObject.flee();
             switch (moveObject.getState()){
                 case DEAD:
-                    if (deadCount == 0){
-                        Sound.playInThread("first_life.wav");
-                        deadCount++;
-                        //todo remove it
-                    }
+                    soundToPlay();
                     gameBoard.addScores(moveObject.getScores());
                     break;
                 case TRASH:
@@ -80,6 +74,27 @@ public class Game implements Observer{
                     checkMoveObjectList();
                     break;
             }
+        }
+    }
+
+    private void soundToPlay() {
+        deadCount++;
+        switch (deadCount){
+            case 1:
+                Sound.playInThread("first_life.wav");
+                break;
+            case 4:
+                Sound.playInThread("double kill.wav");
+                break;
+            case 8:
+                Sound.playInThread("mega kill.wav");
+                break;
+            case 12:
+                Sound.playInThread("monster kill.wav");
+                break;
+            case 16:
+                Sound.playInThread("rampage.wav");
+                break;
         }
     }
 
@@ -102,6 +117,7 @@ public class Game implements Observer{
 
     private void checkMoveObjectList(){
         if (isLevelEnd()) {
+            Sound.playInThread("holy sheet.wav");
             checkGameEnd();
         }
         else
@@ -143,6 +159,9 @@ public class Game implements Observer{
         }
     }
 
+    private void save(){
+    }
+
     private void loadObjectPack(){
         Random r = new Random();
         MyPoint maxPoint = new MyPoint(gameBoard.getBoardDimension().width, gameBoard.getBoardDimension().height);
@@ -177,11 +196,15 @@ public class Game implements Observer{
             clearBoard();
             MainFrame.switcher.update(null, "main menu");
         }
+
+        if (arg.toString().equals("save"))
+            save();
     }
 
     public static String LEVEL_PATH = "res\\levels\\";
+    public static final String SAVE_PATH = "res\\save\\save.txt";
     public static final int MAXIMAL_SCREEN_UPDATE_BETWEEN_STEPS = 6;
     public static final int DAMAGE_TAKEN = 1;
-    public static final int MAXIMAL_LEVEL = 2;
+    public static final int MAXIMAL_LEVEL = 4;
     public static final int COUNT_OF_ACTIVE_MOVING_OBJECT = 20;
 }

@@ -52,24 +52,24 @@ public class SkinPack {
         smashedImage = littleSmashed;
     }
 
-    public void bossPack(){
-        upImage = BOSS;
-        downImage = BOSS;
-        leftImage = BOSS;
-        rightImage = BOSS;
-        smashedImage = new ImageIcon("res\\moving objects\\dimalit\\gigi.png");
+    public void catPack(){
+        upImage = new ImageIcon(OBJECT_PATH + "cat\\right up.gif");
+        downImage = new ImageIcon(OBJECT_PATH + "cat\\right up.gif");
+        leftImage = new ImageIcon(OBJECT_PATH + "cat\\left down.gif");
+        rightImage = new ImageIcon(OBJECT_PATH + "cat\\right up.gif");
+        smashedImage = new ImageIcon(OBJECT_PATH + "cat\\dead.gif");
     }
 
     public void packFor(String who){
         if (who.equals("little_cockroaches"))
             littleCockroachesPack();
 
-        if (who.equals("boss"))
-            bossPack();
+        if (who.equals("cat"))
+            catPack();
     }
 
     private static final String LITTLE_COCKROACH_PATH = "res\\moving objects\\little cockroaches\\";
-    private static final ImageIcon BOSS = new ImageIcon("res\\moving objects\\dimalit\\BOSS.gif");
+    private static final String OBJECT_PATH = "res\\moving objects\\";
 
     private static ImageIcon littleDown = new ImageIcon(LITTLE_COCKROACH_PATH + "littleDown.png");
     private static ImageIcon littleUp = new ImageIcon(LITTLE_COCKROACH_PATH + "littleUp.png");

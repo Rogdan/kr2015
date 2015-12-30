@@ -129,6 +129,10 @@ public class GameBoard extends JPanel implements Observer {
             myObservable.notifyObservers("main menu");
         }
 
+        if (arg.toString().equals("save")){
+            myObservable.notifyObservers("save");
+        }
+
         checkBoardState();
     }
 

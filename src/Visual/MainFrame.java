@@ -67,7 +67,7 @@ public class MainFrame extends JFrame{
     }
 
     private void initGame(){
-        game = new Game(switcher.getGameBoard(), this);
+        game = new Game(switcher.getGameBoard());
         switcher.getGameMenuPanel().addObserver(game);
         switcher.getGameBoard().addObserver(game);
     }

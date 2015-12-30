@@ -61,6 +61,7 @@ public class PauseMenuPanel extends JPanel {
         initResumeButton();
         initResumeButtonAction();
         initSaveButton();
+        initSaveButtonAction();
         initMainMenuButton();
         initMainMenuButtonAction();
 
@@ -90,6 +91,16 @@ public class PauseMenuPanel extends JPanel {
         initButton(saveButton);
 
         add(saveButton);
+    }
+
+    private void initSaveButtonAction(){
+        saveButton.removeMouseListener(saveButton.getMouseListeners()[0]);
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                myObservable.notifyObservers("save");
+            }
+        });
     }
 
     private void initMainMenuButton() {

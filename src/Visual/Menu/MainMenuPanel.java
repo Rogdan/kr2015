@@ -64,7 +64,10 @@ public class MainMenuPanel extends JPanel {
 
         initSettingsButton();
         initHelpButton();
+        initHelpButtonAction();
+
         initAboutButton();
+        initAboutButtonAction();
 
         initExitButton();
         initExitButtonAction();
@@ -103,12 +106,32 @@ public class MainMenuPanel extends JPanel {
         add(helpButton);
     }
 
+    private void initHelpButtonAction(){
+        helpButton.removeMouseListener(helpButton.getMouseListeners()[0]);
+        helpButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NotificationPanel.showHelpDialog(null);
+            }
+        });
+    }
+
     private void initAboutButton() {
         aboutButton = new JButton();
         aboutButton.setIcon(new ImageIcon(GRAPHIC_PATH + "about.png"));
         initButton(aboutButton);
 
         add(aboutButton);
+    }
+
+    private void initAboutButtonAction(){
+        aboutButton.removeMouseListener(aboutButton.getMouseListeners()[0]);
+        aboutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                NotificationPanel.showAboutDialog(null);
+            }
+        });
     }
 
     private void initExitButton() {

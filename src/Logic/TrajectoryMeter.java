@@ -15,7 +15,7 @@ public class TrajectoryMeter {
 
         Queue <MyPoint> trajectory = new ArrayDeque<>();
 
-        while (x < maximalCoordinate.getX() - OUT_OF_RANGE){
+        for (int i = 0; i < (maximalCoordinate.getX() - OUT_OF_RANGE)/STEP_SIZE_IN_PIXELS; i++){
             MyPoint p = new MyPoint();
 
             if (append) {
@@ -42,7 +42,7 @@ public class TrajectoryMeter {
 
         Queue <MyPoint> trajectory = new ArrayDeque<>();
 
-        while (y < maximalCoordinate.getY() - OUT_OF_RANGE){
+        for (int i = 0; i < (maximalCoordinate.getY() - OUT_OF_RANGE)/STEP_SIZE_IN_PIXELS; i++){
             MyPoint p = new MyPoint();
 
             if (append){

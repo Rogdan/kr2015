@@ -79,6 +79,17 @@ public class NotificationPanel extends JPanel {
         setBounds(x, y, getWidth(), getHeight());
     }
 
+    public static void showHelpDialog(Component component){
+        JOptionPane.showMessageDialog(component, "Use your mouse to kill enemies. Bla bla");
+    }
+
+    public static void showAboutDialog(Component component){
+        JOptionPane.showMessageDialog(component, "Created by Rogdan. Contacts:\n" +
+                "vk.com/rogdan \n" +
+                "dolgokakatel91@gmail.com\n" +
+                "All rights reserved. Ukraine 2015.");
+    }
+
     private static final int MAX_LEVEL = 2;
     private static final String NOTIFICATION_PATH = "res\\notifications\\";
     private static final String LEVEL_PATH = NOTIFICATION_PATH + "level.png";
